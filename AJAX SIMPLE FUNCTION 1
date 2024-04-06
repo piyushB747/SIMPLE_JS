@@ -1,0 +1,71 @@
+function fetchUsersActvity(pageNo, pageSize, sortBy, sortDir) {
+
+				var urlForPost = /*[[@{/messagepayload/getNotificationlist}]]*/ +"";
+				$.ajax({
+					url: urlForPost, // API endpoint URL
+					type: 'POST',
+					contentType: 'application/json', // Set content type to JSON
+					data: JSON.stringify({
+						pageNo: pageNo,
+						pageSize: pageSize,
+						sortBy: sortBy,
+						sortDir: sortDir
+					}), // Pass the data as JSON
+					success: function (response) {
+
+						console.log(JSON.stringify(response));
+						var listNotification = response.listNotification;
+						populateTable(listNotification); // Populate the table with user data
+					},
+					error: function (xhr, status, error) {
+						console.error('Error fetching users:', error);
+					}
+				});
+			}
+
+
+			function populateTable(listNotification) {
+				var tbody = $('#tbodyshorturl');
+				tbody.empty();
+				$.each(listNotification, function (index, listNotification) {
+					var row = '<tr>' +
+						'<td>' + (index + 1) + '</td>' +
+						'<td>' + listNotification.notificationHeading + '</td>' +
+						'<td>' + listNotification.details + '</td>' +
+						'<td><a href="#" onclick="showDetailView(' + listNotification.notificationHeading + ', \'' + listNotification.details + '\', event);">Detail View</a></td>'
+					'</tr>';
+					tbody.append(row);
+				});
+			}
+
+			$(document).ready(function () {
+
+				fetchUsersActvity(0, 20, 'id', 'desc');
+
+				$('#pagination').on('click', 'a.page-link', function (e) {
+					e.preventDefault();
+					var pageNo = parseInt($(this).text()) - 1;
+					fetchUsersActvity(pageNo);
+				});
+			});
+
+			populatePagination(4);
+
+			function populatePagination(totalPages) {
+				var pagination = $('#pagination');
+				pagination.empty();
+
+				pagination.append('<li class="page-item"><a class="page-link" href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
+
+				for (var i = 0; i < totalPages; i++) {
+					var pageNumber = i + 1;
+					pagination.append('<li class="page-item"><a class="page-link" href="#">' + pageNumber + '</a></li>');
+				}
+				pagination.append('<li class="page-item"><a class="page-link" href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
+			}
+
+			$('#pagination').on('click', 'a.page-link', function (e) {
+				e.preventDefault();
+				var pageNo = parseInt($(this).text()) - 1;
+				fetchUsers(pageNo, 10, 'id', 'asc');
+			});
